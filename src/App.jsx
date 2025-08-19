@@ -22,12 +22,9 @@ function App() {
         catalog: fallbackFonts,
         leftId: parsed.leftId || fallbackFonts[0]?.id,
         rightId: parsed.rightId || fallbackFonts[1]?.id,
-        leftBg: parsed.leftBg || DEFAULT_BG_COLOR,
-        rightBg: parsed.rightBg || DEFAULT_BG_COLOR,
-        leftWeight: parsed.leftWeight || 400,
-        rightWeight: parsed.rightWeight || 400,
-        leftStyle: parsed.leftStyle || "normal",
-        rightStyle: parsed.rightStyle || "normal",
+        backgroundColor: parsed.backgroundColor || DEFAULT_BG_COLOR,
+        weight: parsed.weight || 400,
+        style: parsed.style || "normal",
         sizePx: parsed.sizePx || DEFAULT_SIZE_PX,
         sampleText: parsed.sampleText || DEFAULT_SAMPLE_TEXT,
         favorites: parsed.favorites || [],
@@ -51,12 +48,9 @@ function App() {
         catalog: fallbackFonts,
         leftId: fallbackFonts[0]?.id,
         rightId: fallbackFonts[1]?.id,
-        leftBg: DEFAULT_BG_COLOR,
-        rightBg: DEFAULT_BG_COLOR,
-        leftWeight: 400,
-        rightWeight: 400,
-        leftStyle: "normal",
-        rightStyle: "normal",
+        backgroundColor: DEFAULT_BG_COLOR,
+        weight: 400,
+        style: "normal",
         sizePx: DEFAULT_SIZE_PX,
         sampleText: DEFAULT_SAMPLE_TEXT,
         favorites: [],
@@ -110,9 +104,24 @@ function App() {
       }));
 
       try {
-        await loadFont(font, weight, style);
+        // Try to load the exact variant first
+        const success = await loadFont(font, weight, style);
+        
+        // If loading the italic style failed, also try to load the normal style
+        // so we have a fallback
+        if (!success && style === "italic") {
+          console.log(`Loading fallback normal style for ${font.family}`);
+          await loadFont(font, weight, "normal");
+        }
       } catch (error) {
         console.error(`Failed to load font for ${side} side:`, error);
+        
+        // Try loading a basic variant as fallback
+        try {
+          await loadFont(font, 400, "normal");
+        } catch (fallbackError) {
+          console.error(`Failed to load fallback font for ${side} side:`, fallbackError);
+        }
       } finally {
         setState((s) => ({
           ...s,
@@ -124,24 +133,12 @@ function App() {
     };
 
     if (state.leftId) {
-      loadFontsForSide(state.leftId, state.leftWeight, state.leftStyle, "left");
+      loadFontsForSide(state.leftId, state.weight, state.style, "left");
     }
     if (state.rightId) {
-      loadFontsForSide(
-        state.rightId,
-        state.rightWeight,
-        state.rightStyle,
-        "right",
-      );
+      loadFontsForSide(state.rightId, state.weight, state.style, "right");
     }
-  }, [
-    state.leftId,
-    state.leftWeight,
-    state.leftStyle,
-    state.rightId,
-    state.rightWeight,
-    state.rightStyle,
-  ]);
+  }, [state.leftId, state.rightId, state.weight, state.style]);
 
   // Helper functions
   const randomFontId = (exclude = []) => {
@@ -223,14 +220,12 @@ function App() {
     e.preventDefault();
   };
 
-  const changeWeight = (side, weight) => {
-    const key = side === "left" ? "leftWeight" : "rightWeight";
-    setState((s) => ({ ...s, [key]: weight }));
+  const changeWeight = (weight) => {
+    setState((s) => ({ ...s, weight }));
   };
 
-  const changeStyle = (side, style) => {
-    const key = side === "left" ? "leftStyle" : "rightStyle";
-    setState((s) => ({ ...s, [key]: style }));
+  const changeStyle = (style) => {
+    setState((s) => ({ ...s, style }));
   };
 
   // Get font data by ID
@@ -386,6 +381,48 @@ function App() {
           />
         </div>
 
+        <div className="weight-control">
+          <label htmlFor="font-weight">Weight:</label>
+          <select
+            id="font-weight"
+            value={state.weight}
+            onChange={(e) => changeWeight(parseInt(e.target.value))}
+          >
+            <option value={100}>100</option>
+            <option value={200}>200</option>
+            <option value={300}>300</option>
+            <option value={400}>400</option>
+            <option value={500}>500</option>
+            <option value={600}>600</option>
+            <option value={700}>700</option>
+            <option value={800}>800</option>
+            <option value={900}>900</option>
+          </select>
+        </div>
+
+        <div className="style-control">
+          <button
+            className={`style-toggle ${state.style === "italic" ? "active" : ""}`}
+            onClick={() => changeStyle(state.style === "italic" ? "normal" : "italic")}
+            title="Toggle italic"
+          >
+            <em>I</em>
+          </button>
+        </div>
+
+        <div className="background-control">
+          <label htmlFor="background-color">Background:</label>
+          <input
+            id="background-color"
+            type="color"
+            value={state.backgroundColor}
+            onChange={(e) =>
+              setState((s) => ({ ...s, backgroundColor: e.target.value }))
+            }
+            title="Background color"
+          />
+        </div>
+
         <div className="menu-buttons">
           <button
             onClick={() =>
@@ -413,7 +450,7 @@ function App() {
       {/* Main Compare Grid */}
       <div className="compare-grid">
         {/* Left Font Card */}
-        <div className="font-card" style={{ backgroundColor: state.leftBg }}>
+        <div className="font-card" style={{ backgroundColor: state.backgroundColor }}>
           <div className="font-card-header">
             <h3>{leftFont?.family || "No Font"}</h3>
             <span className="source-tag">{leftFont?.source}</span>
@@ -426,56 +463,14 @@ function App() {
             </button>
           </div>
 
-          <div className="font-controls">
-            <input
-              type="color"
-              value={state.leftBg}
-              onChange={(e) =>
-                setState((s) => ({ ...s, leftBg: e.target.value }))
-              }
-              title="Background color"
-            />
-
-            <select
-              value={state.leftWeight}
-              onChange={(e) => changeWeight("left", parseInt(e.target.value))}
-              title="Font weight"
-            >
-              {leftFont?.variants ? (
-                [...new Set(leftFont.variants.map((v) => v.weight))]
-                  .sort((a, b) => a - b)
-                  .map((weight) => (
-                    <option key={weight} value={weight}>
-                      {weight}
-                    </option>
-                  ))
-              ) : (
-                <option value={400}>400</option>
-              )}
-            </select>
-
-            <button
-              className={`style-toggle ${state.leftStyle === "italic" ? "active" : ""}`}
-              onClick={() =>
-                changeStyle(
-                  "left",
-                  state.leftStyle === "italic" ? "normal" : "italic",
-                )
-              }
-              disabled={!leftFont?.variants?.some((v) => v.style === "italic")}
-              title="Toggle italic"
-            >
-              <em>I</em>
-            </button>
-          </div>
 
           <div
             className="font-preview"
             style={{
-              fontFamily: leftFont?.family || "Arial",
+              fontFamily: leftFont?.family ? `"${leftFont.family}", Arial, sans-serif` : "Arial, sans-serif",
               fontSize: `${state.sizePx}px`,
-              fontWeight: state.leftWeight,
-              fontStyle: state.leftStyle,
+              fontWeight: state.weight,
+              fontStyle: state.style,
             }}
           >
             {state.sampleText}
@@ -504,7 +499,7 @@ function App() {
         </div>
 
         {/* Right Font Card */}
-        <div className="font-card" style={{ backgroundColor: state.rightBg }}>
+        <div className="font-card" style={{ backgroundColor: state.backgroundColor }}>
           <div className="font-card-header">
             <h3>{rightFont?.family || "No Font"}</h3>
             <span className="source-tag">{rightFont?.source}</span>
@@ -517,56 +512,14 @@ function App() {
             </button>
           </div>
 
-          <div className="font-controls">
-            <input
-              type="color"
-              value={state.rightBg}
-              onChange={(e) =>
-                setState((s) => ({ ...s, rightBg: e.target.value }))
-              }
-              title="Background color"
-            />
-
-            <select
-              value={state.rightWeight}
-              onChange={(e) => changeWeight("right", parseInt(e.target.value))}
-              title="Font weight"
-            >
-              {rightFont?.variants ? (
-                [...new Set(rightFont.variants.map((v) => v.weight))]
-                  .sort((a, b) => a - b)
-                  .map((weight) => (
-                    <option key={weight} value={weight}>
-                      {weight}
-                    </option>
-                  ))
-              ) : (
-                <option value={400}>400</option>
-              )}
-            </select>
-
-            <button
-              className={`style-toggle ${state.rightStyle === "italic" ? "active" : ""}`}
-              onClick={() =>
-                changeStyle(
-                  "right",
-                  state.rightStyle === "italic" ? "normal" : "italic",
-                )
-              }
-              disabled={!rightFont?.variants?.some((v) => v.style === "italic")}
-              title="Toggle italic"
-            >
-              <em>I</em>
-            </button>
-          </div>
 
           <div
             className="font-preview"
             style={{
-              fontFamily: rightFont?.family || "Arial",
+              fontFamily: rightFont?.family ? `"${rightFont.family}", Arial, sans-serif` : "Arial, sans-serif",
               fontSize: `${state.sizePx}px`,
-              fontWeight: state.rightWeight,
-              fontStyle: state.rightStyle,
+              fontWeight: state.weight,
+              fontStyle: state.style,
             }}
           >
             {state.sampleText}

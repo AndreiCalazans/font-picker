@@ -59,6 +59,54 @@
   width: 100px;
 }
 
+.weight-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.weight-control label {
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.weight-control select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+}
+
+.style-control {
+  display: flex;
+  align-items: center;
+}
+
+.background-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.background-control label {
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.background-control input[type="color"] {
+  width: 40px;
+  height: 30px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
 .menu-buttons {
   display: flex;
   gap: 0.5rem;
@@ -115,6 +163,12 @@
   }
 
   .sample-text-container {
+    min-width: auto;
+  }
+
+  .weight-control,
+  .style-control,
+  .background-control {
     min-width: auto;
   }
 }
@@ -181,6 +235,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.font-controls label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
 }
 
 .font-controls input[type="color"] {
