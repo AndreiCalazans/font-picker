@@ -1,22 +1,26 @@
-// Fallback font catalog for when Google Fonts API is not available
+// Comprehensive Google Fonts catalog (100+ fonts)
 export const fallbackFonts = [
   {
     id: "roboto",
     family: "Roboto",
     category: "sans-serif",
     variants: [
+      { weight: 300, style: "normal" },
       { weight: 400, style: "normal" },
       { weight: 400, style: "italic" },
+      { weight: 500, style: "normal" },
       { weight: 700, style: "normal" },
       { weight: 700, style: "italic" },
+      { weight: 900, style: "normal" },
     ],
     files: {
+      300: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc4AMP6lQ.woff2",
       400: "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2",
-      "400italic":
-        "https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzIXKMny.woff2",
+      "400italic": "https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzIXKMny.woff2",
+      500: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2",
       700: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4AMP6lQ.woff2",
-      "700italic":
-        "https://fonts.gstatic.com/s/roboto/v30/KFOjCnqEu92Fr1Mu51TzBic6CsTYl4BO.woff2",
+      "700italic": "https://fonts.gstatic.com/s/roboto/v30/KFOjCnqEu92Fr1Mu51TzBic6CsTYl4BO.woff2",
+      900: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmYUtfBBc4AMP6lQ.woff2",
     },
     source: "google",
   },

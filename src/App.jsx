@@ -450,7 +450,7 @@ function App() {
       {/* Main Compare Grid */}
       <div className="compare-grid">
         {/* Left Font Card */}
-        <div className="font-card" style={{ backgroundColor: state.backgroundColor }}>
+        <div className="font-card">
           <div className="font-card-header">
             <h3>{leftFont?.family || "No Font"}</h3>
             <span className="source-tag">{leftFont?.source}</span>
@@ -471,6 +471,7 @@ function App() {
               fontSize: `${state.sizePx}px`,
               fontWeight: state.weight,
               fontStyle: state.style,
+              backgroundColor: state.backgroundColor,
             }}
           >
             {state.sampleText}
@@ -499,7 +500,7 @@ function App() {
         </div>
 
         {/* Right Font Card */}
-        <div className="font-card" style={{ backgroundColor: state.backgroundColor }}>
+        <div className="font-card">
           <div className="font-card-header">
             <h3>{rightFont?.family || "No Font"}</h3>
             <span className="source-tag">{rightFont?.source}</span>
@@ -520,6 +521,7 @@ function App() {
               fontSize: `${state.sizePx}px`,
               fontWeight: state.weight,
               fontStyle: state.style,
+              backgroundColor: state.backgroundColor,
             }}
           >
             {state.sampleText}
