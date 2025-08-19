@@ -20,18 +20,21 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Install node modules
-COPY package.json ./
-RUN npm install --include=dev
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
 
 # Copy application code
 COPY . .
 
 # Build application
-RUN npm run build
+RUN pnpm run build
 
 # Remove development dependencies
-RUN npm prune --omit=dev
+RUN pnpm prune --prod
 
 
 # Final stage for app image
